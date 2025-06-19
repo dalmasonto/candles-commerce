@@ -1,0 +1,65 @@
+# Dependencies
+node_modules
+/.pnp
+.pnp.js
+yarn.lock
+package-lock.json
+
+# Next.js build output
+/.next/
+/out/
+
+# Production build
+/build
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+*.pem
+Thumbs.db
+
+# Testing
+/coverage
+
+# PWA files
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/sw.js.map
+public/workbox-*.js.map
+public/worker-*.js.map
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Storybook
+/storybook-static
+
+# Sitemap
+public/sitemap.xml
+public/robots.txt
+
+# Cache
+.swc/

@@ -1,0 +1,1 @@
+Static files go here, these are usually static files

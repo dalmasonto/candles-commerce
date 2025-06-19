@@ -1,0 +1,100 @@
+.h-100 {
+    height: 100%;
+}
+
+.w-100 {
+    width: 100%;
+    /* color: rgb(0, 53, 0); */
+}
+
+.book-bg {
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(ellipse at 30% 30%, rgb(69 255 143 / 0) 0%, rgb(0 0 0 / 0.2) 100%) 0% 0% / 12.5% 12.5% repeat repeat,
+        /* Shadow */
+        linear-gradient(rgb(0 0 0 / 1), rgb(0 0 0 / 1)) 71.43% 85.71% / 12.5% 12.5% no-repeat no-repeat,
+        /* Mouth */
+        linear-gradient(rgb(0 0 0 / 1), rgb(0 0 0 / 1)) 28.57% 85.71% / 12.5% 12.5% no-repeat no-repeat,
+        /* Mouth */
+        linear-gradient(rgb(0 0 0 / 1), rgb(0 0 0 / 1)) 50% 42.86% / 25% 12.5% no-repeat no-repeat,
+        /* Nose */
+        linear-gradient(rgb(0 0 0 / 1), rgb(0 0 0 / 1)) 50% 66.67% / 50% 25% no-repeat no-repeat,
+        /* Mouth */
+        conic-gradient(from -90deg at 50% 50%, rgb(7 50 0 / 1) 75%, rgb(0 0 0 / 1) 75%) 83.33% 16.67% / 25% 25% no-repeat no-repeat,
+        /* Right Eye */
+        conic-gradient(from -180deg at 50% 50%, rgb(7 50 0 / 1) 75%, rgb(0 0 0 / 1) 75%) 16.67% 16.67% / 25% 25% no-repeat no-repeat,
+        /* Left Eye */
+        linear-gradient(0deg, rgb(69 255 144 / 0) 98%, rgb(0 0 0 / 0.11) 98%) 0% -0.14% / 12.5% 12.5% repeat repeat,
+        /* Grid Horizontal */
+        linear-gradient(90deg, rgb(69 255 144 / 0) 98%, rgb(0 0 0 / 0.1) 98%) 0.14% 0% / 12.5% 12.5% repeat repeat,
+        /* Grid Vertical */
+        conic-gradient(from 0deg at 50% 50%, rgb(255 255 255 / 0.5) 25%, rgb(83 184 83 / 0.5) 25%, rgb(83 184 83 / 0.5) 50%, rgb(35 112 33 / 0.5) 50%, rgb(35 112 33 / 0.5) 75%, rgb(0 167 67 / 0.5) 75%) 25% 25% / 50% 50% repeat repeat,
+        /* Background */
+        conic-gradient(from 0deg at 50% 50%, rgb(153 255 114 / 0.5) 25%, rgb(15 163 20 / 0.5) 25%, rgb(15 163 20 / 0.5) 50%, rgb(27 128 28 / 0.5) 50%, rgb(27 128 28 / 0.5) 75%, rgb(35 102 44 / 0.5) 75%) 0% 0% / 50% 50% repeat repeat,
+        /* Background */
+        conic-gradient(from 0deg at 50% 50%, rgb(22 201 52 / 1) 25%, rgb(15 163 20 / 1) 25%, rgb(15 163 20 / 1) 50%, rgb(27 128 28 / 1) 50%, rgb(27 128 28 / 1) 75%, rgb(26 95 35 / 1) 75%) 0% 0% / 25% 25% repeat repeat;
+    /* Background */
+}
+
+.animated-button {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    /* padding: 10px 20px;
+    font-size: 16px;
+    background-color: #3498db;
+    color: #fff; */
+    outline: 2px solid transparent;
+    padding-inline: 15px;
+    border: none;
+    cursor: pointer;
+    animation: puldge 1.5s linear infinite;
+}
+
+/* Style for the light animation */
+.animated-button::after {
+    content: "";
+    position: absolute;
+    top: -20px;
+    left: -10%;
+    width: 10px;
+    height: 100px;
+    /* background: red; */
+    background: linear-gradient(to bottom right, transparent 0%, rgba(255, 255, 255, 0.8) 100%);
+    animation: moveLight 1.5s linear infinite;
+    transform-origin: top center;
+    transform: rotate(35deg);
+}
+
+/* Keyframe animation for the light movement */
+@keyframes moveLight {
+    0% {
+        /* transform: translate(-100%, -100%); */
+        left: 0;
+    }
+
+    100% {
+        /* transform: translate(100%, 100%); */
+        left: 110%;
+    }
+}
+
+@keyframes puldge {
+    0% {
+        outline-color: green;
+    }
+
+    50% {
+        outline-color: rgb(0, 155, 226);
+    }
+
+
+    100% {
+        outline-color: yellow;
+    }
+}
+
+.no-bg-on-hover:hover {
+    background: rgb(1, 24, 1);
+}
