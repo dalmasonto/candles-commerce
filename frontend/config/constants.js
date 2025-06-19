@@ -1,7 +1,7 @@
 import { em } from "@mantine/core"
 
-export const DEFAULT_API_ROOT = process.env.NEXT_PUBLIC_API_ROOT
-export const DEFAULT_APP_URL = process.env.NEXT_PUBLIC_APP_URL
+export const DEFAULT_API_ROOT = process.env.NEXT_PUBLIC_DEFAULT_API_ROOT
+export const DEFAULT_APP_URL = process.env.NEXT_PUBLIC_DEFAULT_APP_URL
 export const BASE_MEDIA_URL = process.env.NEXT_PUBLIC_BASE_MEDIA_URL
 
 // export const DEFAULT_API_ROOT = 'https://api.rhea.supercodehive.com/api'
