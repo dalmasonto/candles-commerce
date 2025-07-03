@@ -144,6 +144,10 @@ class Pesapal:
                 tx_status = "COMPLETED"
                 order.is_paid = True
                 order.status = "paid"
+                """
+                    Send email/SMS confirmation here
+                """
+                # self._send_payment_confirmation(order)
             else:
                 tx_status = "FAILED"
 

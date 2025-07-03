@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.utils.http import urlsafe_base64_decode
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets, permissions
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from main.authentication import AUTH_CLASS
+from main.permissions import IsAuthenticatedOrPostOnly
 from main.utils import StandardResultsSetPagination
 from .models import CustomAPIKey
 from .serializers import ChangePasswordSerializer
@@ -193,15 +194,25 @@ def logout_user(request):
         return Response({'detail': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class APIKeyListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+# class APIKeyListView(generics.ListAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = CustomAPIKeySerializer
+#     authentication_classes = [AUTH_CLASS]
+#
+#     pagination_class = StandardResultsSetPagination
+#
+#     def get_queryset(self):
+#         return CustomAPIKey.objects.filter(user=self.request.user)
+
+
+class APIKeyListView(viewsets.ModelViewSet):
+    queryset = CustomAPIKey.objects.all()
     serializer_class = CustomAPIKeySerializer
+
     authentication_classes = [AUTH_CLASS]
+    permission_classes = [permissions.IsAdminUser]
 
     pagination_class = StandardResultsSetPagination
-
-    def get_queryset(self):
-        return CustomAPIKey.objects.filter(user=self.request.user)
 
 
 class CreateAPIKeyView(generics.CreateAPIView):
@@ -243,6 +254,8 @@ class CreateAPIKeyView(generics.CreateAPIView):
             # Store the key temporarily for the response
             api_key_response = CustomAPIKeySerializer(api_key).data
             api_key_response['key'] = key  # Include the key in the response
+            api_key.key = key
+            api_key.save()
             
             return Response(api_key_response, status=status.HTTP_201_CREATED)
             
@@ -260,21 +273,22 @@ class DeleteAPIKeyView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         # Validate input
         api_key_id = request.data.get('id')
+        print("Api key: ", api_key_id)
         
         if not api_key_id:
             return Response({'error': 'API key ID not provided.'}, status=status.HTTP_400_BAD_REQUEST)
             
         # Validate ID format
-        try:
-            api_key_id = int(api_key_id)
-        except (ValueError, TypeError):
-            return Response({'error': 'Invalid API key ID format.'}, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        #     api_key_id = int(api_key_id)
+        # except (ValueError, TypeError):
+        #     return Response({'error': 'Invalid API key ID format.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             # Use select_for_update to prevent race conditions
             from django.db import transaction
             with transaction.atomic():
-                api_key = CustomAPIKey.objects.select_for_update().get(pk=api_key_id)
+                api_key = CustomAPIKey.objects.get(id=api_key_id)
                 
                 # Ensure the API key belongs to the authenticated user
                 if api_key.user != request.user:

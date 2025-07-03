@@ -53,7 +53,7 @@ export const API_ENDPOINTS = {
     // API KEYS management
     CREATE_API_KEY: '/users/auth/create-api-key',
     LIST_API_KEYS: '/users/auth/api-keys',
-    DELETE_API_KEYS: '/users/auth/api-keys/delete',
+    DELETE_API_KEYS: '/users/auth/api-keys-delete',
 
     // USERS
     USERS: `/users/account/view`,

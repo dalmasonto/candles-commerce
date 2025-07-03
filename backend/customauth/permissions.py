@@ -8,7 +8,6 @@ class HasCustomAPIKey(BaseHasAPIKey):
     def has_permission(self, request, view):
         # Extract the domain from the Origin header
         request_host = request.get_host()
-        network = request_host.split('.')[0]
         request_origin = request.headers.get('Origin')
         api_key = request.headers.get('API-KEY')
 

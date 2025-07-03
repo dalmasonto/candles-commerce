@@ -21,7 +21,7 @@ class Profile(TimeStampedModel):
 
 
 @receiver(post_save, sender=User)
-def institution_post_save(sender, instance, created, **kwargs):
+def user_post_save(sender, instance, created, **kwargs):
     if created:
         # Create a user profile if None
         if getattr(instance, 'profile', None) is None:

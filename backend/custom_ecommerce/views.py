@@ -226,11 +226,12 @@ class DiscountViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
+    authentication_classes = [AUTH_CLASS]
     permission_classes = [IsOwnerOrAdmin | HasCustomAPIKey]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     filterset_fields = ['status']
     ordering_fields = ['created_on', 'order_number']
-    search_fields = ['order_number']
+    search_fields = ['order_number', 'tracking_number']
     ordering = ['-created_on']
 
     pagination_class = StandardResultsSetPagination

@@ -64,7 +64,7 @@ class ProductCategory(TimeStampedModel):
 class Product(TimeStampedModel):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True, blank=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     top_notes = models.TextField(null=True)
     middle_notes = models.TextField(null=True)

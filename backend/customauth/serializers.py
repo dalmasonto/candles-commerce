@@ -49,7 +49,7 @@ class CustomAPIKeySerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomAPIKey
         fields = ['id', 'user', 'key', 'name', 'domain', 'created']
-        read_only_fields = ['id', 'user', 'created']
+        # read_only_fields = ['id', 'user', 'created']
         
     def to_representation(self, instance):
         # Never return the actual key in API responses, I will want it for the admin

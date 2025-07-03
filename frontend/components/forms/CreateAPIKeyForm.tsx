@@ -35,6 +35,7 @@ const CreateAPIKeyForm = (props: ICreateAPIKeyForm) => {
         setLoading(true)
         const data_ = JSON.parse(JSON.stringify(form.values))
         let METHOD = "POST"
+        // let URL = API_ENDPOINTS.CREATE_API_KEY
         let URL = API_ENDPOINTS.CREATE_API_KEY
 
         if (updating) {
@@ -79,10 +80,10 @@ const CreateAPIKeyForm = (props: ICreateAPIKeyForm) => {
                 <Stack gap={10}>
                     <Grid>
                         <Grid.Col span={12}>
-                            <TextInput label="API Key Name" {...form.getInputProps('name')} radius={'md'} placeholder="Tokenkit Sepolia" />
+                            <TextInput label="API Key Name" {...form.getInputProps('name')} radius={'md'} placeholder="Local Development" />
                         </Grid.Col>
                     </Grid>
-                    <TextInput label="Domain" description="The domain that will be using this API Key to make calls" {...form.getInputProps('domain')} radius={'md'} placeholder="https://sepolia.token-kit.io" />
+                    <TextInput label="Domain" description="The domain that will be using this API Key to make calls" {...form.getInputProps('domain')} radius={'md'} placeholder="https://localhost:3000" />
                     <Group justify="center" style={{ textAlign: "center" }}>
                         <Button radius={'md'} rightSection={loading ? <Loader color='white' size={16} /> : <IconLogin size={16} />} type='submit' >
                             {updating ? "Update" : "Create"}

@@ -21,6 +21,7 @@ router.register(
     ResetPasswordRequestTokenViewSet,
     basename='reset-password-request'
 )
+router.register(r"api-keys", APIKeyListView)
 
 
 urlpatterns = [
@@ -30,7 +31,7 @@ urlpatterns = [
     path('logout/', logout_user),
     path('check-login-status/', check_user_logged_in),
     path('', include(router.urls)),
-    path('api-keys/', APIKeyListView.as_view()),
-    path('api-keys/delete/', DeleteAPIKeyView.as_view()),
+    # path('api-keys/', APIKeyListView.as_view()),
+    path('api-keys-delete/', DeleteAPIKeyView.as_view()),
     path('create-api-key/', CreateAPIKeyView.as_view()),
 ]

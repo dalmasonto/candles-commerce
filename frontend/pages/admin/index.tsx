@@ -94,8 +94,6 @@ const DeleteAPIKeyAction = (props: IDeleteAPIKeyAction) => {
 
 const ApiKeysTable = () => {
 
-  let { user, token } = useAppContext()
-
   return (
     <CustomDataTable
       url={API_ENDPOINTS.LIST_API_KEYS}
@@ -110,7 +108,7 @@ const ApiKeysTable = () => {
       height={'300px'}
       useNext={false}
       formValidators={undefined}
-      hideUpdateActionBtn={true}
+      hideUpdateActionBtn={false}
       hideDeleteActionBtn={true}
       updateData={{
         formNode: CreateAPIKeyForm,
