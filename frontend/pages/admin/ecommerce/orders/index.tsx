@@ -3,40 +3,105 @@ import { API_ENDPOINTS } from '@/config/constants'
 import AdminWrapper from '@/layouts/AdminWrapper'
 import requireAuthMiddleware from '@/middleware/requireAuthMiddleware'
 import { useAppContext } from '@/providers/appProvider'
-import { ActionIcon, Anchor, Badge, ColorSwatch, Group, Image, Paper, Select, Stack, Table, Text, TextInput, Title } from '@mantine/core'
+import { ActionIcon, Alert, Badge, Box, Button, Card, CopyButton, em, Group, Paper, Select, Stack, Table, Text, Title } from '@mantine/core'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { notifications } from '@mantine/notifications'
-import { IconEye, IconTrash, IconWriting } from '@tabler/icons-react'
+import { IconCopy, IconExternalLink, IconEye } from '@tabler/icons-react'
 import CustomDataTable from '@/components/tables/filters/CustomDataTable'
 import { modals } from '@mantine/modals'
 import { formatCurrency } from '@/config/functions'
 import { DataTable } from 'mantine-datatable'
 
 interface IOrder {
-  id: number;  // Assuming this comes from TimeStampedModel
-  created_on: string;  // DateTime field from TimeStampedModel
-  modified_on: string;  // DateTime field from TimeStampedModel
+  id: number;
+  created_on: string;
+  updated_on: string;
 
-  cart: number | null;  // Reference to Cart ID
-  items: any[];
+  cart: number;
+  items: {
+    id: number;
+    product: number;
+    quantity: number;
+    price: string;
+    product_name: string;
+    total_price: string;
+    created_on: string;
+    updated_on: string;
+  }[];
   order_number: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'paid';
+  status_display: string;
   shipping_address: string;
   billing_address: string;
   email: string;
   phone_number: string;
   first_name: string;
   last_name: string;
-  subtotal: number;
-  shipping_cost: number;
-  tax: number;
-  discount: number;
-  discount_code: number | null;  // Reference to Discount ID
-  total: number;
+  subtotal: string;
+  shipping_cost: string;
+  tax: string;
+  discount: string;
+  discount_code: number | null;
+  total: string;
   notes: string;
-  tracking_number: string | null;
-  estimated_delivery: string | null;  // Date as ISO string
+  tracking_number: string;
+  is_paid: boolean;
+  estimated_delivery: string | null;
+
+  // Tx info
+  payment_url: string;
+  transaction?: {
+    id: number;
+    order: number;
+    transaction_id: string;
+    amount: string;
+    currency: string;
+    status: string;
+    status_display: string;
+    payment_method: string;
+    pesapal_merchant_reference: string;
+    pesapal_order_tracking_id: string;
+    pesapal_redirect_url: string;
+    transaction_init_info: {
+      order_tracking_id: string;
+      merchant_reference: string;
+      redirect_url: string;
+      error: null | any;
+      status: string;
+    };
+    ipn_data?: {
+      OrderTrackingId: string;
+      OrderNotificationType: string;
+      OrderMerchantReference: string;
+    };
+    all_transaction_info_after_callback?: {
+      payment_method: string;
+      amount: number;
+      created_date: string;
+      confirmation_code: string;
+      order_tracking_id: string;
+      payment_status_description: string;
+      description: null | string;
+      message: string;
+      payment_account: string;
+      call_back_url: string;
+      status_code: number;
+      merchant_reference: string;
+      account_number: null | string;
+      payment_status_code: string;
+      currency: string;
+      error: {
+        error_type: null | string;
+        code: null | string;
+        message: null | string;
+      };
+      status: string;
+    };
+    confirmation_code?: string;
+    created_on: string;
+    updated_on?: string;
+  }
 }
 
 
@@ -67,7 +132,52 @@ const ViewOrderInformation = ({ item }: { item: IOrder }) => {
     radius: "lg",
     children: (
       <Stack>
-        <Table>
+        <Title order={3}>Order Information</Title>
+        <Card radius={"md"}>
+          <Stack>
+            <Group justify="apart">
+              <Text fw={500}>Order Number: {order.order_number}</Text>
+              <Badge color={order.is_paid ? 'green' : 'orange'} variant="light" size="lg">
+                {order.is_paid ? 'Paid' : 'Pending Payment'}
+              </Badge>
+            </Group>
+            
+            {order.is_paid ? (
+              <>
+                <Alert color="green" radius={"md"} title="Payment Completed">
+                  This order has been paid using {order.transaction?.payment_method || 'online payment'}
+                  {order.transaction?.confirmation_code && (
+                    <Text size="sm" mt="xs">Confirmation Code: {order.transaction.confirmation_code}</Text>
+                  )}
+                </Alert>
+                {order.transaction?.all_transaction_info_after_callback?.payment_account && (
+                  <Text size="sm" c="dimmed">Paid via: {order.transaction.all_transaction_info_after_callback.payment_account}</Text>
+                )}
+              </>
+            ) : (
+              <>
+                <Text>Payment URL:</Text>
+                <Alert radius={"md"}>
+                  {order.payment_url}
+                </Alert>
+                <Group>
+                  <Button rightSection={<IconExternalLink stroke={em(1.5)} size={"20px"} />} variant="outline" radius={"md"} onClick={() => window.open(order.payment_url, '_blank')}>
+                    Open Payment URL
+                  </Button>
+                  <CopyButton value={order.payment_url}>
+                    {({ copied, copy }) => (
+                      <Button color={copied ? 'teal' : 'blue'} leftSection={<IconCopy stroke={em(1.5)} size={"20px"} />} onClick={copy} radius="md">
+                        {copied ? 'Copied URL' : 'Copy URL'}
+                      </Button>
+                    )}
+                  </CopyButton>
+                </Group>
+              </>
+            )}
+          </Stack>
+        </Card>
+        <Card radius={"md"} p={0} style={{overflow: "hidden"}}>
+        <Table withColumnBorders withRowBorders cellSpacing={"10px"} style={{borderRadius: "10px"}}>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Property</Table.Th>
@@ -85,6 +195,7 @@ const ViewOrderInformation = ({ item }: { item: IOrder }) => {
             }
           </Table.Tbody>
         </Table>
+        </Card>
         <Stack>
           <Title order={3}>Items</Title>
           <DataTable
@@ -117,8 +228,8 @@ const ViewOrderInformation = ({ item }: { item: IOrder }) => {
     )
   })
 
-  return <ActionIcon onClick={openModal}>
-    <IconEye />
+  return <ActionIcon onClick={openModal} variant='light' radius={"sm"}>
+    <IconEye size={20} />
   </ActionIcon>
 }
 
@@ -207,19 +318,19 @@ const OrdersPage = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'yellow'
+        return 'yellow.5'
       case 'paid':
-        return 'green'
+        return 'green.5'
       case 'processing':
-        return 'blue'
+        return 'blue.5'
       case 'shipped':
-        return 'cyan'
+        return 'cyan.5'
       case 'delivered':
-        return 'green'
+        return 'green.5'
       case 'cancelled':
-        return 'red'
+        return 'red.5'
       default:
-        return 'gray'
+        return 'gray.5'
     }
   }
 
@@ -275,13 +386,10 @@ const OrdersPage = () => {
                   render: (item: any) => {
                     return (
                       <Stack>
-                        {/* <Badge color={getStatusColor(item.status)} variant="light">
-                          {item.status}
-                        </Badge> */}
                         <Select
-                        radius={"md"}
-                        leftSection={<ColorSwatch color={getStatusColor(item.status)} size={20} />}
-                        size='sm'
+                          radius={"md"}
+                          leftSection={<Box bg={getStatusColor(item.status)} w={20} h={20} style={{ borderRadius: '50%' }} />}
+                          size='sm'
                           value={item.status}
                           onChange={(value) => updateOrderStatus(item.id, value as string)}
                           data={ORDER_STATUSES}
