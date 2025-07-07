@@ -273,7 +273,7 @@ class OrderSerializer(BaseSerializer, UniqueFieldsMixin, WritableNestedModelSeri
         fields = ['id', 'cart', 'order_number', 'status', 'status_display',
                  'shipping_address', 'billing_address', 'email', 'phone_number',
                  'first_name', 'last_name', 'subtotal', 'shipping_cost',
-                 'tax', 'discount', 'discount_code', 'discount_code_id',
+                 'tax', 'discount', 'discount_code', 'discount_code_id', 'discount_message',
                  'total', 'notes', 'tracking_number', 'is_paid',
                  'estimated_delivery', 'payment_url', 'items', 'created_on', 'updated_on', 'cart_items',
                   "transaction"]

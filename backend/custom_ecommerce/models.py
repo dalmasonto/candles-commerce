@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator
@@ -240,6 +242,10 @@ class Discount(TimeStampedModel):
         return True, "Valid discount code"
 
     def calculate_discount(self, amount):
+        # Check if the purchase amount meets the minimum requirement
+        if self.min_purchase and amount < self.min_purchase:
+            return Decimal('0.00')
+            
         if self.discount_type == 'percentage':
             discount = (amount * self.value) / 100
             if self.max_discount:
@@ -273,6 +279,7 @@ class Order(TimeStampedModel):
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     discount_code = models.ForeignKey(Discount, on_delete=models.SET_NULL, null=True, blank=True)
+    discount_message = models.TextField(blank=True, null=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.TextField(blank=True)
     tracking_number = models.CharField(max_length=100, blank=True)

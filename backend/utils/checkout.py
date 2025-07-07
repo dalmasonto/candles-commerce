@@ -157,6 +157,11 @@ class Pesapal:
             transaction.confirmation_code = response.get("confirmation_code")
             transaction.all_transaction_info_after_callback = response
 
+            # Update discount
+            if order.discount_code:
+                order.discount_code.times_used += 1
+                order.discount_code.save()
+        
             # Update the db by saving the order and transaction
             transaction.save()
             order.save()

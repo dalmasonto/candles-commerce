@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework_bulk import BulkModelViewSet
 
 from customauth.permissions import HasCustomAPIKey
+from customauth.authentication import APIKeyAuthentication
 from main.authentication import AUTH_CLASS
 from main.utils import StandardResultsSetPagination
 from utils.checkout import Pesapal
@@ -24,6 +25,7 @@ from .serializers import (
     CartSerializer, CartItemSerializer, OrderSerializer,
     DiscountSerializer, CallBackUrlsSerializer, TransactionSerializerBasic, ProductImageSerializer
 )
+from .utils import is_not_non_or_zero
 
 
 class ProductCategoryViewSet(BulkModelViewSet):
@@ -226,7 +228,7 @@ class DiscountViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
-    authentication_classes = [AUTH_CLASS]
+    authentication_classes = [AUTH_CLASS, APIKeyAuthentication]
     permission_classes = [IsOwnerOrAdmin | HasCustomAPIKey]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     filterset_fields = ['status']
@@ -255,7 +257,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             quantity = item.get("quantity")
 
             product = get_object_or_404(Product, id=product_id)
-            price = product.sale_price if product.sale_price is not None else product.price
+            price = product.sale_price if is_not_non_or_zero(product.sale_price) else product.price
             line_total = price * quantity
             subtotal += line_total
 
@@ -266,20 +268,60 @@ class OrderViewSet(viewsets.ModelViewSet):
                 price=price
             )
 
-        shipping_cost = Decimal(self.request.data.get("shipping_cost", "0.00"))
-        tax = Decimal(self.request.data.get("tax", "0.00"))
+        shipping_cost = Decimal("0.00") # Decimal(self.request.data.get("shipping_cost", "0.00"))
+        tax = Decimal("0.00") # Decimal(self.request.data.get("tax", "0.00"))
         discount = Decimal("0.00")
 
-        discount_code = serializer.validated_data.get("discount_code")
+        discount_code = self.request.data.get("discount_code")
+        discount_amount = Decimal("0.00")
+        discount_obj = None
+        
+        discount_message = ""
         if discount_code:
-            discount = discount_code.calculate_discount(subtotal)
-            discount_code.times_used += 1
-            if self.request.user.is_authenticated:
-                discount_code.used_by.add(self.request.user)
-            discount_code.save()
+            discount_obj = Discount.objects.filter(code=discount_code).first()
+            
+            if discount_obj:
+                # Check if the discount code is valid
+                is_valid, message = discount_obj.is_valid(
+                    user=self.request.user if self.request.user.is_authenticated else None,
+                    cart_total=subtotal
+                )
+                
+                if is_valid:
+                    # Calculate the discount amount
+                    discount_amount = discount_obj.calculate_discount(subtotal)
+                    
+                    if discount_amount > Decimal("0.00"):
+                        # Update usage statistics, we will update the discount usage in the IPN
+                        # discount_obj.times_used += 1
+                        # if self.request.user.is_authenticated:
+                        #     discount_obj.used_by.add(self.request.user)
+                        # discount_obj.save()
+                        
+                        # Store the discount code in the serializer data
+                        serializer.validated_data["discount_code"] = discount_obj
+                        discount_message = f"Discount code '{discount_code}' applied successfully. You saved {discount_amount}."
+                    else:
+                        # Discount code is valid but no discount was applied (e.g., minimum purchase not met)
+                        if discount_obj.min_purchase and subtotal < discount_obj.min_purchase:
+                            discount_message = f"Minimum purchase of {discount_obj.min_purchase} required for discount code '{discount_code}'."
+                        else:
+                            discount_message = f"Discount code '{discount_code}' could not be applied."
+                else:
+                    # Discount code is not valid, use the message from is_valid method
+                    discount_message = f"Discount code '{discount_code}' is not valid: {message}"
+            else:
+                discount_message = f"Discount code '{discount_code}' not found."
+        else:
+            discount_message = "No discount code provided."
+            
+        # Store the discount message in the serializer data
+        serializer.validated_data["discount_message"] = discount_message
+        
+        discount = discount_amount
 
         total = subtotal + shipping_cost + tax - discount
-
+ 
         cart_instance.total = total
         cart_instance.is_ordered = True
         cart_instance.save()
@@ -291,6 +333,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer.validated_data["discount"] = discount
         serializer.validated_data["total"] = total
         serializer.validated_data["cart"] = cart_instance
+        # Make sure discount_message is saved (already set earlier)
 
         order = serializer.save()
 
@@ -339,7 +382,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def update_status(self, request, pk=None):
-        print(request.user.is_staff, request.user.is_superuser)
         if not request.user.is_staff or not request.user.is_superuser:
             return Response(
                 {'error': 'Only staff can update order status'},

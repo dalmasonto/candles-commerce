@@ -286,61 +286,6 @@ const DiscountsPage = () => {
                 },
               ]}
             />
-
-            <Table>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Code</Table.Th>
-                  <Table.Th>Type</Table.Th>
-                  <Table.Th>Value</Table.Th>
-                  <Table.Th>Usage</Table.Th>
-                  <Table.Th>Status</Table.Th>
-                  <Table.Th>Actions</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {filteredDiscounts.map((discount) => (
-                  <Table.Tr key={discount.id}>
-                    <Table.Td>{discount.code}</Table.Td>
-                    <Table.Td>
-                      {discount.discount_type === 'percentage' ? 'Percentage' : 'Fixed Amount'}
-                    </Table.Td>
-                    <Table.Td>
-                      {discount.discount_type === 'percentage' ? `${discount.value}%` : `$${discount.value}`}
-                    </Table.Td>
-                    <Table.Td>
-                      {discount.times_used}
-                      {discount.usage_limit && ` / ${discount.usage_limit}`}
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge
-                        color={discount.is_active ? 'green' : 'red'}
-                      >
-                        {discount.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <Group>
-                        <ActionIcon
-                          variant="light"
-                          color="blue"
-                          onClick={() => router.push(`/admin/ecommerce/discounts/${discount.id}`)}
-                        >
-                          <IconEdit size={16} />
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="light"
-                          color="red"
-                          onClick={() => deleteDiscount(discount.id)}
-                        >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      </Group>
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
           </Stack>
         </Paper>
       </Stack>
